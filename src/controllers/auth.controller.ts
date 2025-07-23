@@ -9,9 +9,28 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 export const register = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .setHeader('Content-Type', 'application/json')
+      .json({ error: 'Todos os campos são obrigatórios' });
+  }
+
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .setHeader('Content-Type', 'application/json')
+      .json({ error: 'A senha deve ter pelo menos 6 caracteres' });
+  }
+
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return res.status(400).json({ error: 'Email já cadastrado' });
+    if (existing) {
+      return res
+        .status(400)
+        .setHeader('Content-Type', 'application/json')
+        .json({ error: 'Email já cadastrado' });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -19,9 +38,15 @@ export const register = async (req: Request, res: Response) => {
       data: { name, email, password: hashedPassword },
     });
 
-    res.status(201).json({ id: user.id, name: user.name, email: user.email });
+    return res
+      .status(201)
+      .setHeader('Content-Type', 'application/json')
+      .json({ id: user.id, name: user.name, email: user.email });
   } catch (err) {
-    res.status(500).json({ error: 'Erro no servidor' });
+    return res
+      .status(500)
+      .setHeader('Content-Type', 'application/json')
+      .json({ error: 'Erro no servidor' });
   }
 };
 
