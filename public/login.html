@@ -8,19 +8,36 @@
 </head>
 <body class="bg-light">
   <div class="container d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card p-4 shadow-sm" style="min-width: 300px; max-width: 400px; width: 100%;">
-      <h3 class="mb-3 text-center">Entrar no Kanban</h3>
-      <form id="loginForm">
-        <div class="mb-3">
-          <input type="email" class="form-control" id="email" placeholder="Email" required />
+    <main class="card p-4 shadow-sm" style="min-width: 320px; max-width: 400px; width: 100%; border-radius: 12px;">
+      <h2 class="mb-4 text-center fw-bold text-primary">Entrar no Kanban</h2>
+      <form id="loginForm" novalidate>
+        <div class="mb-3 position-relative">
+          <label for="email" class="form-label visually-hidden">Email</label>
+          <input type="email" class="form-control ps-5" id="email" placeholder="Email" required autocomplete="email" autofocus />
+          <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+              <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v.217l-8 4.8-8-4.8V4z"/>
+              <path d="M0 6.383v5.117a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6.383l-7.555 4.53a.5.5 0 0 1-.49 0L0 6.383z"/>
+            </svg>
+          </span>
         </div>
-        <div class="mb-3">
-          <input type="password" class="form-control" id="password" placeholder="Senha" required />
+        <div class="mb-4 position-relative">
+          <label for="password" class="form-label visually-hidden">Senha</label>
+          <input type="password" class="form-control ps-5" id="password" placeholder="Senha" required autocomplete="current-password" />
+          <span class="position-absolute top-50 start-0 translate-middle-y ps-3 text-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
+              <path d="M8 1a4 4 0 0 0-4 4v3h8V5a4 4 0 0 0-4-4zM5 5a3 3 0 1 1 6 0v3H5V5z"/>
+              <path d="M3 8a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2H3zm1 3a1 1 0 1 1 2 0 1 1 0 0 1-2 0z"/>
+            </svg>
+          </span>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+        <button type="submit" class="btn btn-primary w-100 fw-semibold">Entrar</button>
       </form>
       <p id="error" class="text-danger mt-3 text-center small"></p>
-    </div>
+      <div class="mt-4 text-center">
+        <small>Não tem conta? <a href="register.html" class="text-decoration-none">Cadastre-se aqui</a></small>
+      </div>
+    </main>
   </div>
 
   <script>
