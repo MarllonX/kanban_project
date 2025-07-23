@@ -17,4 +17,33 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+  boards    Board[]
+}
+
+model Board {
+  id        String   @id @default(uuid())
+  title     String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  lists     List[]
+}
+
+model List {
+  id        String   @id @default(uuid())
+  title     String
+  order     Int
+  boardId   String
+  board     Board    @relation(fields: [boardId], references: [id])
+  cards     Card[]
+}
+
+model Card {
+  id        String   @id @default(uuid())
+  title     String
+  description String?
+  order     Int
+  listId    String
+  list      List     @relation(fields: [listId], references: [id])
+  createdAt DateTime @default(now())
 }
