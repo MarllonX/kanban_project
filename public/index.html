@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard - Kanban</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Bootstrap 5 CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2>Olá, <span id="userName">Usuário</span> 👋</h2>
+      <button id="logoutBtn" class="btn btn-outline-secondary btn-sm">Sair</button>
+    </div>
+
+    <div class="mb-4">
+      <h4>Seus quadros</h4>
+      <div id="boardList" class="row g-3"></div>
+    </div>
+
+    <hr>
+
+    <div>
+      <h4>Criar novo quadro</h4>
+      <form id="boardForm" class="row g-2">
+        <div class="col-md-6">
+          <input type="text" id="boardTitle" class="form-control" placeholder="Título do quadro" required />
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary">Criar</button>
+        </div>
+        <div class="col-12">
+          <p id="formError" class="text-danger small mt-1"></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('token');
+      const name = localStorage.getItem('userName');
+
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+
+      document.getElementById('userName').textContent = name;
+      const boardList = document.getElementById('boardList');
+      const boardForm = document.getElementById('boardForm');
+      const boardTitle = document.getElementById('boardTitle');
+      const formError = document.getElementById('formError');
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = '/login.html';
+      });
+
+      async function loadBoards() {
+        boardList.innerHTML = '';
+
+        try {
+          const res = await fetch('/api/boards', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao carregar boards');
+
+          if (data.length === 0) {
+            boardList.innerHTML = '<p class="text-muted">Você ainda não criou nenhum quadro.</p>';
+            return;
+          }
+
+          data.forEach(board => {
+            const col = document.createElement('div');
+            col.className = 'col-md-4';
+
+            col.innerHTML = `
+              <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                  <h5 class="card-title">${board.title}</h5>
+                  <div class="mt-auto d-flex justify-content-between">
+                    <a href="/board.html?id=${board.id}" class="btn btn-sm btn-primary">Abrir</a>
+                    <button class="btn btn-sm btn-outline-danger" data-id="${board.id}">Excluir</button>
+                  </div>
+                </div>
+              </div>
+            `;
+
+            col.querySelector('button').addEventListener('click', async () => {
+              if (confirm('Tem certeza que deseja excluir este quadro?')) {
+                await deleteBoard(board.id);
+              }
+            });
+
+            boardList.appendChild(col);
+          });
+
+        } catch (err) {
+          boardList.innerHTML = `<p class="text-danger">${err.message}</p>`;
+        }
+      }
+
+      boardForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        formError.textContent = '';
+
+        try {
+          const res = await fetch('/api/boards', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ title: boardTitle.value }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao criar board');
+
+          boardTitle.value = '';
+          loadBoards();
+        } catch (err) {
+          formError.textContent = err.message;
+        }
+      });
+
+      async function deleteBoard(id) {
+        try {
+          const res = await fetch(`/api/boards/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Erro ao excluir');
+
+          loadBoards();
+        } catch (err) {
+          alert(err.message);
+        }
+      }
+
+      loadBoards();
+    });
+  </script>
+</body>
+</html>

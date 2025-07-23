@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_middleware_1 = require("../middlewares/auth.middleware");
+const list_controller_1 = require("../controllers/list.controller");
+const router = (0, express_1.Router)();
+router.use(auth_middleware_1.authenticate);
+router.post('/', list_controller_1.createList);
+router.get('/board/:boardId', list_controller_1.getListsByBoard);
+router.put('/:id', list_controller_1.updateList);
+router.delete('/:id', list_controller_1.deleteList);
+exports.default = router;
