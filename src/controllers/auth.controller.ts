@@ -7,9 +7,6 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export const register = async (req: Request, res: Response) => {
-  //const { name, email, password } = req.body;
-
-  console.log('BODY RECEBIDO:', req.body);
 
   const name = req.body.name?.trim();
   const email = req.body.email?.trim();
