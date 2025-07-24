@@ -7,20 +7,18 @@ const prisma = new PrismaClient();
 const JWT_SECRET = process.env.JWT_SECRET!;
 
 export const register = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  //const { name, email, password } = req.body;
+
+  const name = req.body.name?.trim();
+  const email = req.body.email?.trim();
+  const password = req.body.password?.trim();
 
   if (!name || !email || !password) {
-    return res
-      .status(400)
-      .setHeader('Content-Type', 'application/json')
-      .json({ error: 'Todos os campos são obrigatórios' });
+    return res.status(400).json({ error: 'Todos os campos são obrigatórios' });
   }
 
   if (password.length < 6) {
-    return res
-      .status(400)
-      .setHeader('Content-Type', 'application/json')
-      .json({ error: 'A senha deve ter pelo menos 6 caracteres' });
+    return res.status(400).json({ error: 'A senha deve ter pelo menos 6 caracteres' });
   }
 
   try {
