@@ -24,7 +24,7 @@
 
     .card-item {
       background: #ffffff;
-      border: 1px solid #d1d1d1;
+      border: 1px solid #ececec;
       padding: 0.5rem;
       border-radius: 0.375rem;
       margin-bottom: 0.5rem;
@@ -46,22 +46,24 @@
   </style>
 </head>
 <body class="bg-light">
-  <nav class="navbar navbar-expand-lg navbar-light bg-light rounded shadow-sm mb-4 px-3">
-      <div class="container">
-        <span class="navbar-brand mb-0 h5" id="boardTitle">Quadro</span>
+  <nav class="navbar bg-light shadow-sm mb-4 px-3 py-2 rounded">
+    <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
+      
+      <!-- Título -->
+      <span class="navbar-brand h2 mb-0" id="boardTitle">Carregando..</span>
 
-        <a href="/" class="btn btn-outline-secondary btn-sm">Voltar</a>
-      </div>
-    </nav>
+      <!-- Formulário nova lista -->
+      <form id="listForm" class="d-flex flex-grow-1 mx-3" style="max-width: 600px;">
+        <input type="text" id="listTitle" class="form-control me-2" placeholder="Nova lista..." required />
+        <button type="submit" class="btn btn-primary">Adicionar</button>
+      </form>
+
+      <!-- Botão voltar -->
+      <a href="/" class="btn btn-outline-secondary btn-sm">Voltar</a>
+    </div>
+  </nav>
   <div class="container py-4">
-    <form id="listForm" class="row g-2 mb-4">
-      <div class="col-md-6">
-        <input type="text" id="listTitle" class="form-control" placeholder="Nova lista..." required />
-      </div>
-      <div class="col-auto">
-        <button type="submit" class="btn btn-primary">Adicionar lista</button>
-      </div>
-    </form>
+    
 
     <div class="board" id="boardContainer"></div>
   </div>
@@ -116,8 +118,7 @@
       const colorClass = data.color ? `bg-${data.color}` : '';
       const textClass = ['yellow', 'light', 'white'].includes(data.color) ? 'text-whitedark' : 'text-white';
 
-      // Altera cores do body e navbar
-      //document.body.className = colorClass + ' ' + textClass;
+      // Altera cores do navbar
       document.querySelector('.navbar').className = `navbar navbar-expand-lg ${colorClass} ${textClass} rounded shadow-sm mb-4 px-3`;
 
       // Altera cor do título
@@ -216,22 +217,30 @@
       listCol.querySelectorAll('.btn-delete-card').forEach(btn => {
         btn.addEventListener('click', async () => {
           const cardId = btn.dataset.cardId;
+          const cardElement = btn.closest('.card-item');
 
-          showToast('Excluindo card..');
+          // Feedback imediato: remover do DOM visualmente
+          cardElement.style.transition = 'opacity 0.2s ease';
+          cardElement.style.opacity = '0';
 
+          // Ainda chama o backend para exclusão real
           const res = await fetch(`/api/cards/${cardId}`, {
             method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
           });
 
-          if (res.ok) {
-            fetchBoard();
-          } else {
+          // Falha? Recupera o DOM se quiser
+          if (!res.ok) {
             alert('Erro ao excluir card');
+            // Opcional: recarrega a board pra corrigir
+            fetchBoard();
           }
+          
+          // Toast de feedback
+          showToast('Card Excluído!');
         });
       });
 
