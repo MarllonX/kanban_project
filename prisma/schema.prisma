@@ -8,9 +8,7 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-        
-// Tabelas -
-
+      
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -22,10 +20,13 @@ model User {
 
 model Board {
   id        String   @id @default(uuid())
-  title     String
+  title     String   
+  color     String   @default("blue")
   createdAt DateTime @default(now())
+
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+
   lists     List[]
 }
 
