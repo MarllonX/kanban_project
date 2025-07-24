@@ -52,36 +52,46 @@
   <!-- Script de envio -->
   <script>
     document.getElementById('registerForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
+    e.preventDefault();
 
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
 
-      const errorEl = document.getElementById('error');
-      errorEl.textContent = '';
+    const errorEl = document.getElementById('error');
+    errorEl.textContent = '';
 
-      try {
-        const res = await fetch('./api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ name, email, password })
-        });
+    // Validação manual no frontend
+    if (!name || !email || !password) {
+      errorEl.textContent = 'Todos os campos são obrigatórios';
+      return;
+    }
 
-        const data = await res.json();
+    if (password.length < 6) {
+      errorEl.textContent = 'A senha deve ter no mínimo 6 caracteres';
+      return;
+    }
 
-        if (!res.ok) {
-          throw new Error(data.message || 'Erro ao registrar');
-        }
+    try {
+      const res = await fetch('https://kanban-project-z4m9.onrender.com/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password })
+      });
 
-        // Registro bem-sucedido → redireciona para login
-        window.location.href = 'login.html';
-      } catch (err) {
-        errorEl.textContent = err.message;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Erro ao registrar');
       }
-    });
+
+      window.location.href = 'login.html';
+    } catch (err) {
+      errorEl.textContent = err.message;
+    }
+  });
   </script>
 </body>
 </html>
