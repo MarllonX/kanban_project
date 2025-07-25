@@ -65,7 +65,7 @@ try {
     if (!res.ok) throw new Error(data.error || 'Erro ao carregar board');
 
     updateNavbarColors(data.color);
-    document.getElementById('boardTitle').textContent = data.title;
+    document.getElementById('boardTitle').innerHTML = `<i class="bi bi-clipboard-heart-fill"></i> ${data.title}`;
     renderLists(data.lists);
 } catch (err) {
     alert(err.message);
@@ -169,6 +169,7 @@ function renderLists(lists) {
         </div>
       </div>
       <div class="cards" id="cards-${list.id}"></div>
+      <hr>
       <form data-list="${list.id}" class="cardForm mt-3">
         <input type="text" class="form-control mb-2" placeholder="Novo card..." required />
         <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-plus-lg"></i> Adicionar</button>

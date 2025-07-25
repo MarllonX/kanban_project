@@ -1,0 +1,38 @@
+#boardTitle{
+    font-size: 24px;
+}
+
+.board {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding: 1rem 0;
+    min-height: 50vh;
+}
+
+.list {
+    width: 300px;
+    flex-shrink: 0;
+}
+
+.card-item {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-item {
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.card-item-actions {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.card-item:hover .card-item-actions {
+    opacity: 1;
+}
