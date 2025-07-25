@@ -110,6 +110,7 @@ showToast('Card Excluído!');
 }
 
 async function addCard(listId, title) {
+console.log('Enviando card:', { title, listId });
 const res = await fetch('/api/cards', {
     method: 'POST',
     headers: {
@@ -175,6 +176,18 @@ function renderLists(lists) {
         <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-plus-lg"></i> Adicionar</button>
       </form>
     `;
+
+    const cardForm = listCol.querySelector('.cardForm');
+
+    cardForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = cardForm.querySelector('input');
+      const title = input.value.trim();
+      if (!title) return;
+
+      await addCard(list.id, title);
+      input.value = '';
+    });
 
     const cardsContainer = listCol.querySelector('.cards');
     list.cards.forEach(card => {
