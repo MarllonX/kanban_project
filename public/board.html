@@ -50,7 +50,7 @@
     <div class="container d-flex align-items-center justify-content-between flex-wrap gap-2">
       
       <!-- Título -->
-      <span class="navbar-brand h2 mb-0" id="boardTitle">Carregando..</span>
+      <span class="navbar-brand h1 mb-0" id="boardTitle">Carregando..</span>
 
       <!-- Formulário nova lista -->
       <form id="listForm" class="d-flex flex-grow-1 mx-3" style="max-width: 600px;">
@@ -79,229 +79,44 @@
   </div>
 </div>
 
+<!-- Modal de Renomear Lista -->
+<div class="modal fade" id="renameListModal" tabindex="-1" aria-labelledby="renameListLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="renameListForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="renameListLabel">Renomear Lista</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="renameListInput" class="form-control" required />
+        <input type="hidden" id="renameListId" />
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de Cor da Lista -->
+<div class="modal fade" id="colorListModal" tabindex="-1" aria-labelledby="colorListLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form class="modal-content" id="colorListForm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="colorListLabel">Alterar Cor da Lista</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body d-flex flex-wrap gap-2 justify-content-center">
+        <!-- Botões de cores serão inseridos via JS -->
+      </div>
+      <input type="hidden" id="colorListId" />
+    </form>
+  </div>
+</div>
+
 <script src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js'
       crossorigin='anonymous'></script>
-
-  <script>
-
-  function showToast(message) {
-    const toastEl = document.getElementById('toastMessage');
-    toastEl.querySelector('.toast-body').textContent = message;
-
-    const toast = new bootstrap.Toast(toastEl);
-    toast.show();
-  }
-
-
-  const token = localStorage.getItem('token');
-  const params = new URLSearchParams(window.location.search);
-  const boardId = params.get('id');
-
-  if (!token || !boardId) {
-    window.location.href = '/';
-  }
-
-  const boardContainer = document.getElementById('boardContainer');
-
-  async function fetchBoard() {
-      const res = await fetch(`/api/boards/${boardId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data.error || 'Erro ao carregar board');
-        window.location.href = '/';
-        return;
-      }
-
-      const colorClass = data.color ? `bg-${data.color}` : '';
-      const textClass = ['yellow', 'light', 'white'].includes(data.color) ? 'text-whitedark' : 'text-white';
-
-      // Altera cores do navbar
-      document.querySelector('.navbar').className = `navbar navbar-expand-lg ${colorClass} ${textClass} rounded shadow-sm mb-4 px-3`;
-
-      // Altera cor do título
-      const boardTitleEl = document.getElementById('boardTitle');
-      boardTitleEl.textContent = data.title;
-      boardTitleEl.className = textClass;
-
-      // Altera cor do botão "Voltar"
-      const backBtn = document.querySelector('.navbar a.btn');
-      if (backBtn) {
-        backBtn.className = `btn btn-sm ${textClass === 'text-white' ? 'btn-outline-light' : 'btn-outline-dark'}`;
-      }
-
-      renderLists(data.lists);
-    }
-
-  function renderLists(lists) {
-    boardContainer.innerHTML = '';
-
-    lists.forEach(list => {
-      const listCol = document.createElement('div');
-      listCol.className = 'list bg-white p-3 rounded shadow-sm position-relative';
-
-      listCol.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <h5 class="mb-0">${list.title}</h5>
-          <button class="btn btn-sm btn-outline-danger btn-delete-list" data-list-id="${list.id}"><i class="bi bi-trash-fill"></i></button>
-        </div>
-        <div class="cards" id="cards-${list.id}"></div>
-        <form data-list="${list.id}" class="cardForm mt-3">
-          <input type="text" class="form-control mb-2" placeholder="Novo card..." required />
-          <button type="submit" class="btn btn-sm btn-outline-primary w-100">Adicionar</button>
-        </form>
-      `;
-
-      const cardsContainer = listCol.querySelector('.cards');
-
-      list.cards.forEach(card => {
-        const cardDiv = document.createElement('div');
-        cardDiv.className = 'card-item d-flex justify-content-between align-items-center mb-2 p-2 border rounded';
-        cardDiv.dataset.cardId = card.id;
-
-        cardDiv.innerHTML = `
-          <span>${card.title}</span>
-          <button class="btn btn-sm btn-danger btn-delete-card card-item-actions" data-card-id="${card.id}"><i class="bi bi-x-lg"></i></button>
-        `;
-
-        cardsContainer.appendChild(cardDiv);
-      });
-
-      // Adicionar novo card
-      listCol.querySelector('.cardForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const input = e.target.querySelector('input');
-        const title = input.value.trim();
-        if (!title) return;
-        const listId = e.target.dataset.list;
-
-        const res = await fetch('/api/cards', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ title, listId }),
-        });
-
-        if (res.ok) {
-          fetchBoard();
-        } else {
-          alert('Erro ao criar card');
-        }
-      });
-
-      // Excluir lista
-      listCol.querySelector('.btn-delete-list').addEventListener('click', async (e) => {
-        const listId = e.target.dataset.listId;
-        if (confirm('Deseja realmente excluir esta lista?')) {
-          const res = await fetch(`/api/lists/${listId}`, {
-            method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`,
-              },
-          });
-
-          if (res.ok) {
-            fetchBoard();
-          } else {
-            alert('Erro ao excluir lista');
-          }
-        }
-      });
-
-      // Excluir cards
-      listCol.querySelectorAll('.btn-delete-card').forEach(btn => {
-        btn.addEventListener('click', async () => {
-          const cardId = btn.dataset.cardId;
-          const cardElement = btn.closest('.card-item');
-
-          // Feedback imediato: remover do DOM visualmente
-          cardElement.style.transition = 'opacity 0.2s ease';
-          cardElement.style.opacity = '0';
-
-          // Ainda chama o backend para exclusão real
-          const res = await fetch(`/api/cards/${cardId}`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-          });
-
-          // Falha? Recupera o DOM se quiser
-          if (!res.ok) {
-            alert('Erro ao excluir card');
-            // Opcional: recarrega a board pra corrigir
-            fetchBoard();
-          }
-          
-          // Toast de feedback
-          showToast('Card Excluído!');
-        });
-      });
-
-      boardContainer.appendChild(listCol);
-
-      // Drag & Drop com Sortable
-      new Sortable(cardsContainer, {
-        group: 'shared',
-        animation: 150,
-        onEnd: handleCardReorder,
-      });
-    });
-  }
-
-  // Adicionar nova lista
-  document.getElementById('listForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const title = document.getElementById('listTitle').value.trim();
-    if (!title) return;
-
-    const res = await fetch('/api/lists', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ title, boardId }),
-    });
-
-    if (res.ok) {
-      document.getElementById('listTitle').value = '';
-      fetchBoard();
-    } else {
-      alert('Erro ao criar lista');
-    }
-  });
-
-  // Reordenar cards com drag & drop
-  async function handleCardReorder(evt) {
-    const newListId = evt.to.id.replace('cards-', '');
-    const cardElements = evt.to.querySelectorAll('.card-item');
-
-    for (let i = 0; i < cardElements.length; i++) {
-      const cardId = cardElements[i].dataset.cardId;
-
-      await fetch(`/api/cards/${cardId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ order: i + 1, listId: newListId }),
-      });
-    }
-
-    fetchBoard();
-  }
-
-  // Inicializar
-  fetchBoard();
-</script>
+<script src="/js/board.js"></script>
 
 </body>
 </html>
